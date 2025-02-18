@@ -7,6 +7,10 @@ import Summary from '@/components/Summary';
 
 interface TranscriptionResponse {
   text: string;
+  utterances: Array<{
+    speaker: string;
+    text: string;
+  }>;
 }
 
 export default function Home() {

@@ -6,6 +6,10 @@ import { ClipboardIcon, CheckIcon } from '@heroicons/react/24/outline';
 interface SummaryProps {
   transcriptionData: {
     text: string;
+    utterances: Array<{
+      speaker: string;
+      text: string;
+    }>;
   };
   summary: string;
   setSummary: (summary: string) => void;

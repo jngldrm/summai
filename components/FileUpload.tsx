@@ -5,7 +5,13 @@ import { upload } from '@vercel/blob/client';
 import { useState, useRef } from 'react';
 
 interface FileUploadProps {
-  onTranscriptionComplete: (data: { text: string }) => void;
+  onTranscriptionComplete: (data: { 
+    text: string;
+    utterances: Array<{
+      speaker: string;
+      text: string;
+    }>;
+  }) => void;
 }
 
 export default function FileUpload({ onTranscriptionComplete }: FileUploadProps) {
