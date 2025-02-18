@@ -32,7 +32,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           // For example, save the blob URL to a database
           // const { userId } = JSON.parse(tokenPayload);
           // await db.update({ avatar: blob.url, userId });
-        } catch (error) {
+        } catch (err) {
           throw new Error('Could not update user');
         }
       },
