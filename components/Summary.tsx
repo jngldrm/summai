@@ -19,7 +19,15 @@ interface SummaryProps {
 export default function Summary({ transcriptionData, summary, setSummary }: SummaryProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [prompt, setPrompt] = useState(
-    "Please provide a concise summary of this conversation, highlighting the main points discussed and any important conclusions or action items."
+    `Ich brauche eine Zusammenfassung des Gesprächs.
+Teilnehmer waren
+Speaker A = Milena, Speaker B war ich, Speaker C Philipp.
+
+Starte mit einer kurzen Zusammenfassung. Erwähne bitte die unterschiedlichen Themen und Standpunkte der Teilnehmer. Gab es Ergebnisse/Schlüsse? Kann man für die einzelnen Teilnehmer ToDos ableiten? Gab es Uneinigkeiten?
+
+Falls das Gespräch lang ist und sich in mehrere verschiedene Themengebiete gliedern lässt, tue dies.
+
+Ich brauche die Zusammenfassung für meine Ablage, um mich später schnell wieder an das Gespräch erinnern zu können.`
   );
   const [copied, setCopied] = useState(false);
 
