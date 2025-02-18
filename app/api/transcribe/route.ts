@@ -48,8 +48,14 @@ export async function POST(request: Request) {
       console.log('Transcription response:', transcription);
 
       if (transcription.status === "completed") {
+        // Check if the text is present
+        if (!transcription.text) {
+          throw new Error('Transcription completed but no text found');
+        }
         return NextResponse.json({ text: transcription.text }, { status: 200 });
       } else if (transcription.status === "failed") {
+        // Log the error message from the transcription response
+        console.error('Transcription failed:', transcription.error);
         return NextResponse.json({ error: "Transcription failed" }, { status: 500 });
       }
 
