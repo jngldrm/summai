@@ -18,7 +18,7 @@ export default function Home() {
       <h1 className="text-3xl font-bold mb-8">SummAI</h1>
       
       <div className="space-y-8">
-        <FileUpload onTranscriptionComplete={setTranscriptionData} />
+        <FileUpload onTranscriptionComplete={(data) => setTranscriptionData(data)} />
         
         {transcriptionData && (
           <Transcription data={transcriptionData} />
