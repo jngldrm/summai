@@ -11,7 +11,6 @@
   "dependencies": {
     "@heroicons/react": "^2.0.18",
     "@vercel/blob": "^0.22.3",
-    "assemblyai": "^4.9.0",
     "next": "15.1.7",
     "openai": "^4.28.0",
     "react": "^19.0.0",
