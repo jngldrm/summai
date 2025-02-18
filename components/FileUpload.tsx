@@ -35,21 +35,31 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
     }
 
     try {
-      ffmpeg.FS('writeFile', 'input.mp4', await fetchFile(file));
+      // Write input file
+      await ffmpeg.writeFile('input.mp4', await fetchFile(file));
       
       // Add progress handler
-      ffmpeg.setProgress(({ ratio }) => {
-        setProgress(Math.round(ratio * 100));
+      ffmpeg.on('progress', ({ progress }) => {
+        setProgress(Math.round(progress * 100));
       });
 
-      await ffmpeg.run('-i', 'input.mp4', '-vn', '-acodec', 'libmp3lame', '-ab', '128k', 'output.mp3');
-      const mp3Data = ffmpeg.FS('readFile', 'output.mp3');
+      // Run FFmpeg command
+      await ffmpeg.exec([
+        '-i', 'input.mp4',
+        '-vn',
+        '-acodec', 'libmp3lame',
+        '-ab', '128k',
+        'output.mp3'
+      ]);
+
+      // Read output file
+      const data = await ffmpeg.readFile('output.mp3');
       
       // Clean up
-      ffmpeg.FS('unlink', 'input.mp4');
-      ffmpeg.FS('unlink', 'output.mp3');
+      await ffmpeg.deleteFile('input.mp4');
+      await ffmpeg.deleteFile('output.mp3');
       
-      return new Blob([mp3Data.buffer], { type: 'audio/mp3' });
+      return new Blob([data], { type: 'audio/mp3' });
     } catch (error) {
       throw new Error(`FFmpeg conversion failed: ${error.message}`);
     }
