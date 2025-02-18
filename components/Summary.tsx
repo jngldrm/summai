@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ClipboardIcon, CheckIcon } from '@heroicons/react/24/outline';
+import ReactMarkdown from 'react-markdown';
 
 interface SummaryProps {
   transcriptionData: {
@@ -126,7 +127,11 @@ Bitte erstelle:
 
       {summary && (
         <div className="relative mt-4 p-4 bg-gray-50 rounded-lg">
-          <div className="prose max-w-none">{summary}</div>
+          <div className="prose prose-sm max-w-none whitespace-pre-wrap">
+            <ReactMarkdown>
+              {summary}
+            </ReactMarkdown>
+          </div>
           <button
             onClick={copyToClipboard}
             className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700"
