@@ -31,7 +31,7 @@ export async function POST(request: Request) {
         audio_url: audioUrl,
         speaker_labels: true,
         speakers_expected: 2,
-        language_code: 'en'  // Add explicit language setting
+        language_code: 'de'  // Changed from 'en' to 'de' for German
       }),
     });
 
