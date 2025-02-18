@@ -13,6 +13,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     
     return NextResponse.json(jsonResponse);
   } catch (err) {
+    console.error('Upload error:', err);
     return NextResponse.json(
       { error: 'Failed to upload to Vercel Blob' },
       { status: 500 }
