@@ -9,8 +9,13 @@ export async function POST(request: Request): Promise<NextResponse> {
       body,
       request,
       token: process.env.BLOB_READ_WRITE_TOKEN || '',
-      onBeforeGenerateToken: () => ({}),
-      onUploadCompleted: () => {},
+      onBeforeGenerateToken: async () => ({
+        allowedContentTypes: ['audio/mp3', 'video/mp4'],
+        maximumSizeInBytes: 100 * 1024 * 1024, // 100MB
+      }),
+      onUploadCompleted: async () => {
+        // Optional: Add any post-upload processing here
+      },
     };
 
     const jsonResponse = await handleUpload(options);
