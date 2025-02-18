@@ -1,19 +1,14 @@
 import { NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 
-export const config = {
-  api: {
-    bodyParser: false,  // Disable body parser for large files
-    maxDuration: 60,    // Increase timeout to 60 seconds
-  },
-};
+// Increase timeout and disable body parser for large files
+export const runtime = 'edge';
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
     
-    console.log('Token:', process.env.BLOB_READ_WRITE_TOKEN?.slice(0, 10) + '...');
     console.log('File:', file ? `${file.name} (${file.size} bytes)` : 'No file');
     
     if (!file) {

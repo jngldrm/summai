@@ -16,6 +16,8 @@ interface AssemblyAIResponse {
 
 const ASSEMBLY_AI_API_KEY = process.env.ASSEMBLY_AI_API_KEY;
 
+export const runtime = 'edge';
+
 export async function POST(request: Request) {
   try {
     const { audioUrl } = await request.json();
@@ -24,32 +26,39 @@ export async function POST(request: Request) {
     const response = await fetch('https://api.assemblyai.com/v2/transcript', {
       method: 'POST',
       headers: {
-        'Authorization': ASSEMBLY_AI_API_KEY || '',
+        'Authorization': process.env.ASSEMBLY_AI_API_KEY || '',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         audio_url: audioUrl,
         speaker_labels: true,
-        language_code: 'de'  // German language
+        language_code: 'de'
       }),
     });
+
+    if (!response.ok) {
+      throw new Error(`AssemblyAI API error: ${response.statusText}`);
+    }
 
     const initialData = await response.json();
     const transcriptId = initialData.id;
 
     // Poll for completion
-    let transcription: AssemblyAIResponse;
+    let transcription;
     while (true) {
       const pollingResponse = await fetch(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
         headers: {
-          'Authorization': ASSEMBLY_AI_API_KEY || ''
+          'Authorization': process.env.ASSEMBLY_AI_API_KEY || ''
         }
       });
+
+      if (!pollingResponse.ok) {
+        throw new Error(`AssemblyAI polling error: ${pollingResponse.statusText}`);
+      }
+
       transcription = await pollingResponse.json();
 
       if (transcription.status === 'completed') {
-        console.log('Raw AssemblyAI response:', JSON.stringify(transcription, null, 2));
-        
         // Format the response to match our expected interface
         const formattedResponse = {
           words: transcription.words.map(word => ({
@@ -60,7 +69,6 @@ export async function POST(request: Request) {
           }))
         };
         
-        console.log('Formatted response:', JSON.stringify(formattedResponse, null, 2));
         return NextResponse.json(formattedResponse);
       }
       
