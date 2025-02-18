@@ -18,6 +18,7 @@ interface SummaryProps {
 
 export default function Summary({ transcriptionData, summary, setSummary }: SummaryProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState('');
   const [prompt, setPrompt] = useState(
     `Zusammenfassung des Gesprächs:
 Teilnehmer: A=Milena, B=Ich, C=Philipp
@@ -33,6 +34,7 @@ Bitte erstelle:
 
   const generateSummary = async () => {
     setIsLoading(true);
+    setLoadingStatus('Preparing transcript...');
     
     try {
       // Format transcript with proper line breaks and spacing
@@ -50,6 +52,7 @@ Bitte erstelle:
 
       console.log('Sending transcript:', transcript.slice(0, 200) + '...'); // Debug log
 
+      setLoadingStatus('Generating summary (this might take up to a minute)...');
       const response = await fetch('/api/summarize', {
         method: 'POST',
         headers: { 
@@ -58,7 +61,7 @@ Bitte erstelle:
         body: JSON.stringify({
           transcript,
           prompt,
-        }, null, 2), // Pretty print JSON for debugging
+        }),
       });
 
       const responseText = await response.text(); // Get raw response text
@@ -79,6 +82,7 @@ Bitte erstelle:
       alert(error instanceof Error ? error.message : 'Failed to generate summary. Please try again.');
     } finally {
       setIsLoading(false);
+      setLoadingStatus('');
     }
   };
 
@@ -117,7 +121,7 @@ Bitte erstelle:
             : 'bg-blue-600 hover:bg-blue-700'}
         `}
       >
-        {isLoading ? 'Generating Summary...' : 'Generate Summary'}
+        {loadingStatus || (isLoading ? 'Generating Summary...' : 'Generate Summary')}
       </button>
 
       {summary && (
