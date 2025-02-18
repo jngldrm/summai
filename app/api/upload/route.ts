@@ -1,26 +1,18 @@
-import { handleUpload, type HandleUploadOptions } from '@vercel/blob/client';
 import { NextResponse } from 'next/server';
+import { blob } from '@vercel/blob';
 
-export async function POST(request: Request): Promise<NextResponse> {
-  const body = await request.json();
+export async function POST(request: Request) {
+  const formData = await request.formData();
+  const file = formData.get('file') as File;
   
   try {
-    const options: HandleUploadOptions = {
-      body,
-      request,
-      token: process.env.BLOB_READ_WRITE_TOKEN || '',
-      onBeforeGenerateToken: async () => ({
-        allowedContentTypes: ['audio/mp3', 'video/mp4'],
-        maximumSizeInBytes: 100 * 1024 * 1024, // 100MB
-      }),
-      onUploadCompleted: async () => {
-        // Optional: Add any post-upload processing here
-      },
-    };
-
-    const jsonResponse = await handleUpload(options);
+    const { url } = await blob.upload({
+      data: file,
+      access: 'public',
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
     
-    return NextResponse.json(jsonResponse);
+    return NextResponse.json({ url });
   } catch (err) {
     console.error('Upload error:', err);
     return NextResponse.json(

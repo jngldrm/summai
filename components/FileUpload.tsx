@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BlobUploader } from '@vercel/blob/client';
+import { blob } from '@vercel/blob';
 
 interface FileUploadProps {
   onTranscriptionComplete: (data: TranscriptionData) => void;
@@ -26,37 +26,37 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file size (100MB limit)
-    if (file.size > 100 * 1024 * 1024) {
-      setStatus('Error: File size must be less than 100MB');
-      return;
-    }
-
     try {
       setIsLoading(true);
       setProgress(0);
       
       setStatus('Uploading file...');
-      const uploader = new BlobUploader({
-        endpoint: '/api/upload',
-        file,
-        access: 'public',
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
       });
 
-      const { url } = await uploader.upload();
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const { url } = await response.json();
 
       setStatus('Transcribing with AssemblyAI...');
-      const response = await fetch('/api/transcribe', {
+      const transcriptionResponse = await fetch('/api/transcribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ audioUrl: url }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Transcription failed: ${response.statusText}`);
+      if (!transcriptionResponse.ok) {
+        throw new Error(`Transcription failed: ${transcriptionResponse.statusText}`);
       }
 
-      const transcriptionData = await response.json();
+      const transcriptionData = await transcriptionResponse.json();
       onTranscriptionComplete(transcriptionData);
       setStatus('Transcription complete!');
     } catch (error: unknown) {
