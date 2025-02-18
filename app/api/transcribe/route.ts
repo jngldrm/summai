@@ -10,8 +10,8 @@ export async function POST(request: Request) {
     const response = await fetch('https://api.assemblyai.com/v2/transcript', {
       method: 'POST',
       headers: {
-        'Authorization': ASSEMBLY_AI_API_KEY,
-        'Content-Type': 'application/json',
+        'Authorization': ASSEMBLY_AI_API_KEY || '',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         audio_url: audioUrl,
@@ -26,7 +26,9 @@ export async function POST(request: Request) {
     let transcription;
     while (true) {
       const pollingResponse = await fetch(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
-        headers: { 'Authorization': ASSEMBLY_AI_API_KEY },
+        headers: {
+          'Authorization': ASSEMBLY_AI_API_KEY || ''
+        }
       });
       transcription = await pollingResponse.json();
 
@@ -37,7 +39,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(transcription);
-  } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 } 
