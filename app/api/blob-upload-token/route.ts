@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getToken } from '@vercel/blob';
+import { generateClientToken } from '@vercel/blob/client';
 
 export async function POST(request: Request) {
   try {
     const { filename, contentType } = await request.json();
 
-    const clientToken = await getToken({
+    const clientToken = await generateClientToken({
       pathname: filename,
       contentType,
       access: 'public',
