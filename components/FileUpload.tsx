@@ -37,10 +37,10 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
       setProgress(0);
       
       setStatus('Uploading file...');
-      const blob = new Blob([await file.arrayBuffer()], { type: file.type });
-      const { url } = await upload(blob, {
+      const { url } = await upload(file, {
         access: 'public',
         handleUploadUrl: '/api/upload',
+        contentType: file.type,
       });
 
       setStatus('Transcribing with AssemblyAI...');
