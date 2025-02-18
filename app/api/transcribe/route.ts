@@ -44,10 +44,26 @@ export async function POST(request: Request) {
 
       transcription = await pollingResponse.json();
 
+      // Log the entire transcription response for debugging
+      console.log('Transcription response:', transcription);
+
       if (transcription.status === 'completed') {
-        // Log the transcribed text directly
-        console.log(transcription.text); // This is the simplified output
-        return NextResponse.json({ text: transcription.text }); // Return the text
+        if (!transcription.words) {
+          throw new Error('Transcription completed but no words found');
+        }
+
+        // Format the response to include speaker labels and text
+        const formattedResponse = {
+          text: transcription.text,
+          words: transcription.words.map((word) => ({
+            text: word.text,
+            start: word.start / 1000,
+            end: word.end / 1000,
+            speaker: word.speaker
+          }))
+        };
+
+        return NextResponse.json(formattedResponse);
       }
       
       if (transcription.status === 'error') {
