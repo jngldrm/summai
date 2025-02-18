@@ -39,7 +39,7 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
       setStatus(`Uploading file (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`);
 
       // Get the client upload token
-      const response = await fetch('/api/blob-upload-token', {
+      const response = await fetch('/api/upload-handler', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filename: file.name, contentType: file.type }),
