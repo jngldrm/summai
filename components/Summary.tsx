@@ -19,15 +19,15 @@ interface SummaryProps {
 export default function Summary({ transcriptionData, summary, setSummary }: SummaryProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [prompt, setPrompt] = useState(
-    `Ich brauche eine Zusammenfassung des Gesprächs.
-Teilnehmer waren
-Speaker A = Milena, Speaker B war ich, Speaker C Philipp.
+    `Zusammenfassung des Gesprächs:
+Teilnehmer: A=Milena, B=Ich, C=Philipp
 
-Starte mit einer kurzen Zusammenfassung. Erwähne bitte die unterschiedlichen Themen und Standpunkte der Teilnehmer. Gab es Ergebnisse/Schlüsse? Kann man für die einzelnen Teilnehmer ToDos ableiten? Gab es Uneinigkeiten?
-
-Falls das Gespräch lang ist und sich in mehrere verschiedene Themengebiete gliedern lässt, tue dies.
-
-Ich brauche die Zusammenfassung für meine Ablage, um mich später schnell wieder an das Gespräch erinnern zu können.`
+Bitte erstelle:
+1. Kurze Zusammenfassung
+2. Hauptthemen & Standpunkte
+3. Ergebnisse/Beschlüsse
+4. ToDos pro Person
+5. Uneinigkeiten/offene Punkte`
   );
   const [copied, setCopied] = useState(false);
 
@@ -35,7 +35,6 @@ Ich brauche die Zusammenfassung für meine Ablage, um mich später schnell wiede
     setIsLoading(true);
     
     try {
-      // Prepare the transcript text with speaker names
       const transcript = transcriptionData.words
         .reduce((acc, word, index, array) => {
           const currentSpeaker = word.speaker;
@@ -58,14 +57,15 @@ Ich brauche die Zusammenfassung für meine Ablage, um mich später schnell wiede
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate summary');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate summary');
       }
 
       const data = await response.json();
       setSummary(data.summary);
     } catch (error) {
       console.error('Summary generation error:', error);
-      alert('Failed to generate summary. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to generate summary. Please try again.');
     } finally {
       setIsLoading(false);
     }
