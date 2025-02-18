@@ -1,12 +1,5 @@
 import { NextResponse } from 'next/server';
 
-interface TranscriptWord {
-  text: string;
-  start: number;
-  end: number;
-  speaker: string;
-}
-
 const ASSEMBLY_AI_API_KEY = process.env.ASSEMBLY_AI_API_KEY;
 
 export const runtime = 'edge';
@@ -54,7 +47,7 @@ export async function POST(request: Request) {
       if (transcription.status === 'completed') {
         // Format the response to include speaker labels
         const formattedResponse = {
-          words: transcription.words.map((word) => ({
+          words: transcription.words.map((word: TranscriptWord) => ({
             text: word.text,
             start: word.start / 1000,  // Convert to seconds
             end: word.end / 1000,      // Convert to seconds
