@@ -8,8 +8,10 @@ interface FileUploadProps {
   onTranscriptionComplete: (data: { 
     text: string;
     utterances: Array<{
-      speaker: string;
       text: string;
+      speaker: string;
+      start: number;
+      end: number;
     }>;
   }) => void;
 }

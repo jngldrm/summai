@@ -17,8 +17,8 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         audio_url: audioUrl,
-        speaker_labels: true,
-        language_code: 'de'
+        language_code: 'de',
+        speaker_labels: true
       }),
     });
 
@@ -30,6 +30,7 @@ export async function POST(request: Request) {
     const transcriptId = initialData.id;
 
     // Poll for completion
+    let transcription;
     while (true) {
       const pollingResponse = await fetch(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
         headers: {
@@ -41,19 +42,15 @@ export async function POST(request: Request) {
         throw new Error(`AssemblyAI polling error: ${pollingResponse.statusText}`);
       }
 
-      const transcription = await pollingResponse.json();
+      transcription = await pollingResponse.json();
       console.log('Transcription status:', transcription.status);
 
       if (transcription.status === "completed") {
-        // Format the response with speaker labels
-        const formattedResponse = {
+        // Return both the full text and the utterances with speaker labels
+        return NextResponse.json({
           text: transcription.text,
-          utterances: transcription.utterances?.map(utterance => ({
-            speaker: utterance.speaker,
-            text: utterance.text
-          })) || []
-        };
-        return NextResponse.json(formattedResponse);
+          utterances: transcription.utterances || []
+        });
       } 
       
       if (transcription.status === "error") {
