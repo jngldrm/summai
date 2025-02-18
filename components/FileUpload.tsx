@@ -39,7 +39,7 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
       setStatus('Uploading file...');
       const { url } = await put(file.name, file, {
         access: 'public',
-        handleUploadUrl: '/api/upload',
+        uploadApiEndpoint: '/api/upload',
         contentType: file.type,
       });
 
