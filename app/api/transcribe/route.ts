@@ -15,7 +15,8 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         audio_url: audioUrl,
-        speaker_labels: true,
+        speaker_labels: true,  // Enable speaker diarization
+        speakers_expected: 2   // Optional: specify expected number of speakers
       }),
     });
 
@@ -32,14 +33,22 @@ export async function POST(request: Request) {
       });
       transcription = await pollingResponse.json();
 
-      if (transcription.status === 'completed') break;
-      if (transcription.status === 'error') throw new Error('Transcription failed');
+      if (transcription.status === 'completed') {
+        // Format the response to match our expected interface
+        return NextResponse.json({
+          words: transcription.words,
+          speakers: [...new Set(transcription.words.map((word: any) => word.speaker))]
+        });
+      }
+      
+      if (transcription.status === 'error') {
+        throw new Error(transcription.error || 'Transcription failed');
+      }
       
       await new Promise(resolve => setTimeout(resolve, 3000));
     }
-
-    return NextResponse.json(transcription);
   } catch (error: unknown) {
+    console.error('Transcription error:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
