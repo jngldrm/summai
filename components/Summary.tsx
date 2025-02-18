@@ -5,10 +5,11 @@ import { ClipboardIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 interface SummaryProps {
   transcriptionData: {
-    text: string;
-    utterances: Array<{
-      speaker: string;
+    words: Array<{
       text: string;
+      start: number;
+      end: number;
+      speaker: string;
     }>;
   };
   summary: string;
@@ -36,7 +37,16 @@ Bitte erstelle:
     setLoadingStatus('Preparing transcript...');
     
     try {
-      const transcript = transcriptionData.text
+      const transcript = transcriptionData.words
+        .reduce((acc, word, index, array) => {
+          const currentSpeaker = word.speaker;
+          const prevSpeaker = index > 0 ? array[index - 1].speaker : null;
+          
+          if (currentSpeaker !== prevSpeaker) {
+            return acc + (acc ? '\n' : '') + `${currentSpeaker}: ${word.text}`;
+          }
+          return acc + ' ' + word.text;
+        }, '')
         .trim();
 
       setLoadingStatus('Generating summary (this might take up to a minute)...');

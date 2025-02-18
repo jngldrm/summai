@@ -1,5 +1,12 @@
 import { NextResponse } from 'next/server';
 
+interface TranscriptWord {
+  text: string;
+  start: number;
+  end: number;
+  speaker: string;
+}
+
 const ASSEMBLY_AI_API_KEY = process.env.ASSEMBLY_AI_API_KEY;
 
 export const runtime = 'edge';
@@ -17,8 +24,8 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         audio_url: audioUrl,
-        language_code: 'de',
-        speaker_labels: true
+        speaker_labels: true,
+        language_code: 'de'
       }),
     });
 
@@ -43,21 +50,25 @@ export async function POST(request: Request) {
       }
 
       transcription = await pollingResponse.json();
-      console.log('Transcription status:', transcription.status);
 
-      if (transcription.status === "completed") {
-        // Return both the full text and the utterances with speaker labels
-        return NextResponse.json({
-          text: transcription.text,
-          utterances: transcription.utterances || []
-        });
-      } 
+      if (transcription.status === 'completed') {
+        // Format the response to match our expected interface
+        const formattedResponse = {
+          words: transcription.words.map((word: TranscriptWord) => ({
+            text: word.text,
+            start: word.start / 1000,  // Convert to seconds
+            end: word.end / 1000,      // Convert to seconds
+            speaker: `Speaker ${word.speaker}`
+          }))
+        };
+        
+        return NextResponse.json(formattedResponse);
+      }
       
-      if (transcription.status === "error") {
+      if (transcription.status === 'error') {
         throw new Error(transcription.error || 'Transcription failed');
       }
-
-      // Wait before polling again
+      
       await new Promise(resolve => setTimeout(resolve, 3000));
     }
   } catch (error: unknown) {
