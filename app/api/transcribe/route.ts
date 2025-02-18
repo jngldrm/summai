@@ -30,8 +30,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         audio_url: audioUrl,
         speaker_labels: true,
-        speakers_expected: 2,
-        language_code: 'de'  // Changed from 'en' to 'de' for German
+        language_code: 'de'  // German language
       }),
     });
 
