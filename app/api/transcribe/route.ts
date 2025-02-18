@@ -29,8 +29,9 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         audio_url: audioUrl,
-        speaker_labels: true,  // Enable speaker diarization
-        speakers_expected: 2   // Optional: specify expected number of speakers
+        speaker_labels: true,
+        speakers_expected: 2,
+        language_code: 'en'  // Add explicit language setting
       }),
     });
 
@@ -48,11 +49,21 @@ export async function POST(request: Request) {
       transcription = await pollingResponse.json();
 
       if (transcription.status === 'completed') {
+        console.log('Raw AssemblyAI response:', JSON.stringify(transcription, null, 2));
+        
         // Format the response to match our expected interface
-        return NextResponse.json({
-          words: transcription.words,
-          speakers: [...new Set(transcription.words.map(word => word.speaker))]
-        });
+        const formattedResponse = {
+          words: transcription.words.map(word => ({
+            text: word.text,
+            start: word.start / 1000,  // Convert to seconds
+            end: word.end / 1000,      // Convert to seconds
+            speaker: `Speaker ${word.speaker}`
+          })),
+          speakers: [...new Set(transcription.words.map(word => `Speaker ${word.speaker}`))]
+        };
+        
+        console.log('Formatted response:', JSON.stringify(formattedResponse, null, 2));
+        return NextResponse.json(formattedResponse);
       }
       
       if (transcription.status === 'error') {
