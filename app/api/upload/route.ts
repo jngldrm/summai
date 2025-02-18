@@ -35,7 +35,6 @@ export async function POST(request: Request) {
     const { url } = await put(file.name, file, {
       access: 'public',
       token: process.env.BLOB_READ_WRITE_TOKEN,
-      maxSize: MAX_FILE_SIZE,
     });
     
     return NextResponse.json({ url });
