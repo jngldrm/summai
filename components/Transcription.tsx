@@ -10,7 +10,7 @@ interface TranscriptionProps {
       start: number;
       end: number;
     }>;
-    speakers: Array<string>;
+    speakers?: Array<string>;
   };
   speakers: Record<string, string>;
   onSpeakersChange: (speakers: Record<string, string>) => void;
@@ -18,6 +18,9 @@ interface TranscriptionProps {
 
 export default function Transcription({ data, speakers, onSpeakersChange }: TranscriptionProps) {
   const [editingSpeaker, setEditingSpeaker] = useState<string | null>(null);
+
+  // Extract unique speakers from words if data.speakers is not provided
+  const uniqueSpeakers = data.speakers ?? [...new Set(data.words.map(word => word.speaker))];
 
   // Group words by speaker and combine into sentences
   const groupedText = data.words.reduce((acc, word) => {
@@ -60,7 +63,7 @@ export default function Transcription({ data, speakers, onSpeakersChange }: Tran
       <div className="bg-gray-100 p-4 rounded-lg">
         <h2 className="text-xl font-semibold mb-4">Speaker Names</h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {data.speakers.map((speaker) => (
+          {uniqueSpeakers.map((speaker) => (
             <div key={speaker} className="flex items-center space-x-2">
               {editingSpeaker === speaker ? (
                 <input
