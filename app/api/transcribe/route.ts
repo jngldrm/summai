@@ -57,8 +57,7 @@ export async function POST(request: Request) {
             start: word.start / 1000,  // Convert to seconds
             end: word.end / 1000,      // Convert to seconds
             speaker: `Speaker ${word.speaker}`
-          })),
-          speakers: [...new Set(transcription.words.map(word => `Speaker ${word.speaker}`))]
+          }))
         };
         
         console.log('Formatted response:', JSON.stringify(formattedResponse, null, 2));

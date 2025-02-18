@@ -7,15 +7,16 @@ interface SummaryProps {
   transcriptionData: {
     words: Array<{
       text: string;
+      start: number;
+      end: number;
       speaker: string;
     }>;
   };
-  speakers: Record<string, string>;
   summary: string;
   setSummary: (summary: string) => void;
 }
 
-export default function Summary({ transcriptionData, speakers, summary, setSummary }: SummaryProps) {
+export default function Summary({ transcriptionData, summary, setSummary }: SummaryProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [prompt, setPrompt] = useState(
     "Please provide a concise summary of this conversation, highlighting the main points discussed and any important conclusions or action items."
@@ -29,7 +30,7 @@ export default function Summary({ transcriptionData, speakers, summary, setSumma
       // Prepare the transcript text with speaker names
       const transcript = transcriptionData.words
         .reduce((acc, word, index, array) => {
-          const currentSpeaker = speakers[word.speaker] || word.speaker;
+          const currentSpeaker = word.speaker;
           const prevSpeaker = index > 0 ? array[index - 1].speaker : null;
           
           if (word.speaker !== prevSpeaker) {
