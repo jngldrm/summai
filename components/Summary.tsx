@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { ClipboardIcon, CheckIcon } from '@heroicons/react/24/outline';
-import ReactMarkdown from 'react-markdown';
 
 interface SummaryProps {
   transcriptionData: {
@@ -38,47 +37,30 @@ Bitte erstelle:
     setLoadingStatus('Preparing transcript...');
     
     try {
-      // Improve transcript formatting
       const transcript = transcriptionData.words
         .reduce((acc, word, index, array) => {
           const currentSpeaker = word.speaker;
           const prevSpeaker = index > 0 ? array[index - 1].speaker : null;
           
           if (currentSpeaker !== prevSpeaker) {
-            // Add double newline before new speaker except for first one
-            return acc + (acc ? '\n\n' : '') + `${currentSpeaker}: ${word.text}`;
+            return acc + (acc ? '\n' : '') + `${currentSpeaker}: ${word.text}`;
           }
           return acc + ' ' + word.text;
         }, '')
         .trim();
 
-      console.log('Sending transcript:', transcript.slice(0, 200) + '...'); // Debug log
-
       setLoadingStatus('Generating summary (this might take up to a minute)...');
       const response = await fetch('/api/summarize', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          transcript,
-          prompt,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript, prompt }),
       });
 
-      const responseText = await response.text(); // Get raw response text
-      console.log('Raw response:', responseText); // Debug log
-
-      try {
-        const data = JSON.parse(responseText);
-        if (data.error) {
-          throw new Error(data.error);
-        }
-        setSummary(data.summary);
-      } catch (parseError) {
-        console.error('JSON Parse error:', parseError);
-        throw new Error('Invalid response format from server');
+      const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
       }
+      setSummary(data.summary);
     } catch (error) {
       console.error('Summary generation error:', error);
       alert(error instanceof Error ? error.message : 'Failed to generate summary. Please try again.');
@@ -118,9 +100,7 @@ Bitte erstelle:
         disabled={isLoading}
         className={`
           w-full py-2 px-4 rounded-md text-white font-medium
-          ${isLoading 
-            ? 'bg-blue-400 cursor-not-allowed' 
-            : 'bg-blue-600 hover:bg-blue-700'}
+          ${isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}
         `}
       >
         {loadingStatus || (isLoading ? 'Generating Summary...' : 'Generate Summary')}
@@ -128,23 +108,7 @@ Bitte erstelle:
 
       {summary && (
         <div className="relative mt-4 p-4 bg-gray-50 rounded-lg">
-          <div className="prose prose-sm max-w-none">
-            <ReactMarkdown
-              components={{
-                // Customize heading spacing
-                h1: ({node, ...props}) => <h1 className="mt-4 mb-2" {...props} />,
-                h2: ({node, ...props}) => <h2 className="mt-4 mb-2" {...props} />,
-                // Customize paragraph spacing
-                p: ({node, ...props}) => <p className="my-1" {...props} />,
-                // Customize list spacing
-                ul: ({node, ...props}) => <ul className="my-2" {...props} />,
-                ol: ({node, ...props}) => <ol className="my-2" {...props} />,
-                li: ({node, ...props}) => <li className="my-0.5" {...props} />
-              }}
-            >
-              {summary}
-            </ReactMarkdown>
-          </div>
+          <pre className="whitespace-pre-wrap text-sm">{summary}</pre>
           <button
             onClick={copyToClipboard}
             className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700"
