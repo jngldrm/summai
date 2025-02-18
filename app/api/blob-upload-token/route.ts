@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { filename, contentType } = await request.json();
+    await request.json(); // Just to consume the request body
 
     // You can implement token generation logic here if needed
 
