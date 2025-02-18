@@ -17,7 +17,6 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         audio_url: audioUrl,
-        speaker_labels: true,
         language_code: 'de'
       }),
     });
@@ -43,16 +42,14 @@ export async function POST(request: Request) {
       }
 
       transcription = await pollingResponse.json();
-
-      // Log the entire transcription response for debugging
-      console.log('Transcription response:', transcription);
+      console.log('Transcription status:', transcription.status);
 
       if (transcription.status === "completed") {
-        return NextResponse.json({ text: transcription.text }, { status: 200 });
-      } else if (transcription.status === "failed") {
-        // Log the error message from the transcription response
-        console.error('Transcription failed:', transcription.error);
-        return NextResponse.json({ error: "Transcription failed" }, { status: 500 });
+        return NextResponse.json({ text: transcription.text });
+      } 
+      
+      if (transcription.status === "error") {
+        throw new Error(transcription.error || 'Transcription failed');
       }
 
       // Wait before polling again

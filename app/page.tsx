@@ -5,17 +5,15 @@ import FileUpload from '@/components/FileUpload';
 import Transcription from '@/components/Transcription';
 import Summary from '@/components/Summary';
 
-// Define the interface to match what we're getting from the API
-interface TranscriptionData {
+interface TranscriptionResponse {
   text: string;
 }
 
 export default function Home() {
-  const [transcriptionData, setTranscriptionData] = useState<TranscriptionData | null>(null);
+  const [transcriptionData, setTranscriptionData] = useState<TranscriptionResponse | null>(null);
   const [summary, setSummary] = useState('');
 
-  // Create a handler function to update the state
-  const handleTranscriptionComplete = (data: TranscriptionData) => {
+  const handleTranscriptionComplete = (data: TranscriptionResponse) => {
     setTranscriptionData(data);
   };
 
@@ -32,7 +30,7 @@ export default function Home() {
 
         {transcriptionData && (
           <Summary 
-            transcriptionData={{ words: [{ text: transcriptionData.text, start: 0, end: 0, speaker: '' }] }}
+            transcriptionData={transcriptionData}
             summary={summary}
             setSummary={setSummary}
           />
