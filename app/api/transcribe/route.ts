@@ -7,6 +7,8 @@ interface TranscriptWord {
   speaker: string;
 }
 
+const ASSEMBLY_AI_API_KEY = process.env.ASSEMBLY_AI_API_KEY;
+
 export const runtime = 'edge';
 
 export async function POST(request: Request) {
@@ -17,7 +19,7 @@ export async function POST(request: Request) {
     const response = await fetch('https://api.assemblyai.com/v2/transcript', {
       method: 'POST',
       headers: {
-        'Authorization': process.env.ASSEMBLY_AI_API_KEY || '',
+        'Authorization': ASSEMBLY_AI_API_KEY || '',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -39,7 +41,7 @@ export async function POST(request: Request) {
     while (true) {
       const pollingResponse = await fetch(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
         headers: {
-          'Authorization': process.env.ASSEMBLY_AI_API_KEY || ''
+          'Authorization': ASSEMBLY_AI_API_KEY || ''
         }
       });
 
