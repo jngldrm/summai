@@ -53,8 +53,6 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
 
       // Upload directly to Vercel Blob
       const { url } = await upload(file.name, file, {
-        clientToken,
-        tokenUrl,
         onProgress: (progress) => {
           setProgress(Math.round(progress * 100));
         },
