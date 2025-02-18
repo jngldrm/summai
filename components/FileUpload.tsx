@@ -36,7 +36,7 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
       setIsLoading(true);
       setProgress(0);
       
-      setStatus('Uploading file...');
+      setStatus(`Uploading file (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`);
       const formData = new FormData();
       formData.append('file', file);
 
@@ -47,12 +47,13 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Upload failed');
+        console.error('Upload response:', await response.text());
+        throw new Error(errorData.error || `Upload failed: ${response.statusText}`);
       }
 
       const { url } = await response.json();
+      setStatus('Upload complete, starting transcription...');
 
-      setStatus('Transcribing with AssemblyAI...');
       const transcriptionResponse = await fetch('/api/transcribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
