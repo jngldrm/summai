@@ -6,12 +6,7 @@ import Transcription from '@/components/Transcription';
 import Summary from '@/components/Summary';
 
 interface TranscriptionData {
-  words: Array<{
-    text: string;
-    start: number;
-    end: number;
-    speaker: string;
-  }>;
+  text: string;
 }
 
 export default function Home() {
