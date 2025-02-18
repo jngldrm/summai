@@ -8,6 +8,8 @@ export const config = {
   },
 };
 
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -33,7 +35,7 @@ export async function POST(request: Request) {
     const { url } = await put(file.name, file, {
       access: 'public',
       token: process.env.BLOB_READ_WRITE_TOKEN,
-      maxSize: 500 * 1024 * 1024, // 500MB limit
+      maxSize: MAX_FILE_SIZE,
     });
     
     return NextResponse.json({ url });

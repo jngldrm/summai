@@ -16,6 +16,8 @@ interface TranscriptionData {
   speakers: string[];
 }
 
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
 export default function FileUpload({ onTranscriptionComplete }: FileUploadProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState('');
@@ -25,8 +27,8 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 500 * 1024 * 1024) {
-      setStatus('Error: File size must be less than 500MB');
+    if (file.size > MAX_FILE_SIZE) {
+      setStatus('Error: File size must be less than 50MB');
       return;
     }
 
