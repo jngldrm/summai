@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { upload } from '@vercel/blob/client';
 
 interface FileUploadProps {
   onTranscriptionComplete: (data: TranscriptionData) => void;
@@ -13,7 +14,6 @@ interface TranscriptionData {
     start: number;
     end: number;
   }>;
-  speakers: string[];
 }
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -37,21 +37,29 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
       setProgress(0);
       
       setStatus(`Uploading file (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`);
-      const formData = new FormData();
-      formData.append('file', file);
 
-      const response = await fetch('/api/upload', {
+      // Get the client upload token
+      const response = await fetch('/api/blob-upload-token', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, contentType: file.type }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Upload response:', await response.text());
-        throw new Error(errorData.error || `Upload failed: ${response.statusText}`);
+        throw new Error('Failed to get upload token');
       }
 
-      const { url } = await response.json();
+      const { tokenUrl, clientToken } = await response.json();
+
+      // Upload directly to Vercel Blob
+      const { url } = await upload(file.name, file, {
+        clientToken,
+        tokenUrl,
+        onProgress: (progress) => {
+          setProgress(Math.round(progress * 100));
+        },
+      });
+
       setStatus('Upload complete, starting transcription...');
 
       const transcriptionResponse = await fetch('/api/transcribe', {
