@@ -5,9 +5,19 @@ import FileUpload from '@/components/FileUpload';
 import Transcription from '@/components/Transcription';
 import Summary from '@/components/Summary';
 
+interface TranscriptionData {
+  words: Array<{
+    text: string;
+    speaker: string;
+    start: number;
+    end: number;
+  }>;
+  speakers: string[];
+}
+
 export default function Home() {
-  const [transcriptionData, setTranscriptionData] = useState(null);
-  const [speakers, setSpeakers] = useState({});
+  const [transcriptionData, setTranscriptionData] = useState<TranscriptionData | null>(null);
+  const [speakers, setSpeakers] = useState<Record<string, string>>({});
   const [summary, setSummary] = useState('');
 
   return (
