@@ -33,6 +33,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           // const { userId } = JSON.parse(tokenPayload);
           // await db.update({ avatar: blob.url, userId });
         } catch (error) {
+          console.error('Error during post-upload processing:', error); // Log the error
           throw new Error('Could not update user');
         }
       },
