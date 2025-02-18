@@ -8,16 +8,14 @@ import Summary from '@/components/Summary';
 interface TranscriptionData {
   words: Array<{
     text: string;
-    speaker: string;
     start: number;
     end: number;
+    speaker: string;
   }>;
-  speakers: string[];
 }
 
 export default function Home() {
   const [transcriptionData, setTranscriptionData] = useState<TranscriptionData | null>(null);
-  const [speakers, setSpeakers] = useState<Record<string, string>>({});
   const [summary, setSummary] = useState('');
 
   return (
@@ -28,17 +26,12 @@ export default function Home() {
         <FileUpload onTranscriptionComplete={setTranscriptionData} />
         
         {transcriptionData && (
-          <Transcription 
-            data={transcriptionData} 
-            speakers={speakers}
-            onSpeakersChange={setSpeakers}
-          />
+          <Transcription data={transcriptionData} />
         )}
 
         {transcriptionData && (
           <Summary 
             transcriptionData={transcriptionData}
-            speakers={speakers}
             summary={summary}
             setSummary={setSummary}
           />
