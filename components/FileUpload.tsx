@@ -8,15 +8,6 @@ interface FileUploadProps {
   onTranscriptionComplete: (data: { text: string }) => void;
 }
 
-interface TranscriptionData {
-  words: Array<{
-    text: string;
-    speaker: string;
-    start: number;
-    end: number;
-  }>;
-}
-
 export default function FileUpload({ onTranscriptionComplete }: FileUploadProps) {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
@@ -36,7 +27,7 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
 
       const newBlob = await upload(file.name, file, {
         access: 'public',
-        handleUploadUrl: '/api/upload', // Adjust this to your upload handler
+        handleUploadUrl: '/api/upload',
       });
 
       setBlob(newBlob);
