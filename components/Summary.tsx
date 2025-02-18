@@ -35,34 +35,45 @@ Bitte erstelle:
     setIsLoading(true);
     
     try {
+      // Format transcript with proper line breaks and spacing
       const transcript = transcriptionData.words
         .reduce((acc, word, index, array) => {
           const currentSpeaker = word.speaker;
           const prevSpeaker = index > 0 ? array[index - 1].speaker : null;
           
-          if (word.speaker !== prevSpeaker) {
-            acc += `\n${currentSpeaker}: `;
+          if (currentSpeaker !== prevSpeaker) {
+            return acc + `\n${currentSpeaker}: ${word.text}`;
           }
-          acc += `${word.text} `;
-          return acc;
-        }, '');
+          return acc + ' ' + word.text;
+        }, '')
+        .trim();
+
+      console.log('Sending transcript:', transcript.slice(0, 200) + '...'); // Debug log
 
       const response = await fetch('/api/summarize', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           transcript,
           prompt,
-        }),
+        }, null, 2), // Pretty print JSON for debugging
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate summary');
-      }
+      const responseText = await response.text(); // Get raw response text
+      console.log('Raw response:', responseText); // Debug log
 
-      const data = await response.json();
-      setSummary(data.summary);
+      try {
+        const data = JSON.parse(responseText);
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        setSummary(data.summary);
+      } catch (parseError) {
+        console.error('JSON Parse error:', parseError);
+        throw new Error('Invalid response format from server');
+      }
     } catch (error) {
       console.error('Summary generation error:', error);
       alert(error instanceof Error ? error.message : 'Failed to generate summary. Please try again.');
