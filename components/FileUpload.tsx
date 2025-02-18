@@ -5,7 +5,7 @@ import { upload } from '@vercel/blob/client';
 import { useState, useRef } from 'react';
 
 interface FileUploadProps {
-  onTranscriptionComplete: (data: TranscriptionData) => void;
+  onTranscriptionComplete: (data: { text: string }) => void;
 }
 
 interface TranscriptionData {
