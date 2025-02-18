@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 
+export const config = {
+  api: {
+    bodyParser: false,  // Disable body parser for large files
+    maxDuration: 60,    // Increase timeout to 60 seconds
+  },
+};
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -26,6 +33,7 @@ export async function POST(request: Request) {
     const { url } = await put(file.name, file, {
       access: 'public',
       token: process.env.BLOB_READ_WRITE_TOKEN,
+      maxSize: 500 * 1024 * 1024, // 500MB limit
     });
     
     return NextResponse.json({ url });

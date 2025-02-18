@@ -25,6 +25,11 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
     const file = event.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 500 * 1024 * 1024) {
+      setStatus('Error: File size must be less than 500MB');
+      return;
+    }
+
     try {
       setIsLoading(true);
       setProgress(0);
