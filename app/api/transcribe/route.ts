@@ -1,5 +1,19 @@
 import { NextResponse } from 'next/server';
 
+interface TranscriptWord {
+  text: string;
+  start: number;
+  end: number;
+  speaker: string;
+}
+
+interface AssemblyAIResponse {
+  id: string;
+  status: 'queued' | 'processing' | 'completed' | 'error';
+  words: TranscriptWord[];
+  error?: string;
+}
+
 const ASSEMBLY_AI_API_KEY = process.env.ASSEMBLY_AI_API_KEY;
 
 export async function POST(request: Request) {
@@ -24,7 +38,7 @@ export async function POST(request: Request) {
     const transcriptId = initialData.id;
 
     // Poll for completion
-    let transcription;
+    let transcription: AssemblyAIResponse;
     while (true) {
       const pollingResponse = await fetch(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
         headers: {
@@ -37,7 +51,7 @@ export async function POST(request: Request) {
         // Format the response to match our expected interface
         return NextResponse.json({
           words: transcription.words,
-          speakers: [...new Set(transcription.words.map((word: any) => word.speaker))]
+          speakers: [...new Set(transcription.words.map(word => word.speaker))]
         });
       }
       
