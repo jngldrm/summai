@@ -45,17 +45,9 @@ export async function POST(request: Request) {
       transcription = await pollingResponse.json();
 
       if (transcription.status === 'completed') {
-        // Format the response to include speaker labels
-        const formattedResponse = {
-          words: transcription.words.map((word: TranscriptWord) => ({
-            text: word.text,
-            start: word.start / 1000,  // Convert to seconds
-            end: word.end / 1000,      // Convert to seconds
-            speaker: `Speaker ${word.speaker}`
-          }))
-        };
-        
-        return NextResponse.json(formattedResponse);
+        // Log the transcribed text directly
+        console.log(transcription.text); // This is the simplified output
+        return NextResponse.json({ text: transcription.text }); // Return the text
       }
       
       if (transcription.status === 'error') {
