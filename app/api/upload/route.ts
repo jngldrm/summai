@@ -8,7 +8,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const jsonResponse = await handleUpload({
       body,
       request,
-      onBeforeGenerateToken: async (pathname, clientPayload) => {
+      onBeforeGenerateToken: async () => {
         // Generate a client token for the browser to upload the file
         // ⚠️ Authenticate and authorize users before generating the token.
         // Otherwise, you're allowing anonymous uploads.
@@ -17,16 +17,15 @@ export async function POST(request: Request): Promise<NextResponse> {
           allowedContentTypes: ['audio/mpeg', 'audio/wav', 'audio/mp3'], // Adjust as needed
           tokenPayload: JSON.stringify({
             // Optional payload to send back to the client
-            // You could pass a user id from auth, or a value from clientPayload
           }),
         };
       },
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
+      onUploadCompleted: async ({ blob }) => {
         // Get notified of client upload completion
         // ⚠️ This will not work on `localhost` websites,
         // Use ngrok or similar to get the full upload flow
 
-        console.log('Blob upload completed', blob, tokenPayload);
+        console.log('Blob upload completed', blob);
 
         try {
           // Run any logic after the file upload completed
@@ -40,9 +39,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     });
 
     return NextResponse.json(jsonResponse);
-  } catch (error) {
+  } catch (err) {
+    console.error('Upload error:', err);
     return NextResponse.json(
-      { error: (error as Error).message },
+      { error: (err as Error).message },
       { status: 400 } // The webhook will retry 5 times waiting for a 200
     );
   }
