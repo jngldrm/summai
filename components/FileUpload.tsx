@@ -37,7 +37,8 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
       setProgress(0);
       
       setStatus('Uploading file...');
-      const { url } = await upload(file, {
+      const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+      const { url } = await upload(blob, {
         access: 'public',
         handleUploadUrl: '/api/upload',
       });
