@@ -8,8 +8,6 @@ export const config = {
   },
 };
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
-
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
