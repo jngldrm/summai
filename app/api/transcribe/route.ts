@@ -7,15 +7,6 @@ interface TranscriptWord {
   speaker: string;
 }
 
-interface AssemblyAIResponse {
-  id: string;
-  status: 'queued' | 'processing' | 'completed' | 'error';
-  words: TranscriptWord[];
-  error?: string;
-}
-
-const ASSEMBLY_AI_API_KEY = process.env.ASSEMBLY_AI_API_KEY;
-
 export const runtime = 'edge';
 
 export async function POST(request: Request) {
@@ -61,7 +52,7 @@ export async function POST(request: Request) {
       if (transcription.status === 'completed') {
         // Format the response to match our expected interface
         const formattedResponse = {
-          words: transcription.words.map(word => ({
+          words: transcription.words.map((word: TranscriptWord) => ({
             text: word.text,
             start: word.start / 1000,  // Convert to seconds
             end: word.end / 1000,      // Convert to seconds
