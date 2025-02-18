@@ -26,10 +26,11 @@ export default function Transcription({ data, speakers, onSpeakersChange }: Tran
     }
     
     const lastGroup = acc[word.speaker][acc[word.speaker].length - 1];
-    const timeDiff = lastGroup ? word.start - lastGroup.end : null;
+    // Initialize timeDiff to a large number if lastGroup doesn't exist
+    const timeDiff = lastGroup ? word.start - lastGroup.end : 2;
     
     // Start new group if time difference is more than 1 second
-    if (!lastGroup || timeDiff > 1) {
+    if (timeDiff > 1) {
       acc[word.speaker].push({
         text: word.text,
         start: word.start,
