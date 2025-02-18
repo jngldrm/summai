@@ -5,15 +5,16 @@ import { upload } from '@vercel/blob/client';
 import { useState, useRef } from 'react';
 
 interface FileUploadProps {
-  onTranscriptionComplete: (data: { 
+  onTranscriptionComplete: (data: TranscriptionData) => void;
+}
+
+interface TranscriptionData {
+  words: Array<{
     text: string;
-    utterances: Array<{
-      text: string;
-      speaker: string;
-      start: number;
-      end: number;
-    }>;
-  }) => void;
+    speaker: string;
+    start: number;
+    end: number;
+  }>;
 }
 
 export default function FileUpload({ onTranscriptionComplete }: FileUploadProps) {
@@ -35,7 +36,7 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
 
       const newBlob = await upload(file.name, file, {
         access: 'public',
-        handleUploadUrl: '/api/upload',
+        handleUploadUrl: '/api/upload', // Adjust this to your upload handler
       });
 
       setBlob(newBlob);
@@ -63,7 +64,7 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
 
   return (
     <>
-      <h1>Upload Your Audio/Video File</h1>
+      <h1>Summ AI</h1>
 
       <form onSubmit={handleUpload}>
         <input name="file" ref={inputFileRef} type="file" accept="video/*,audio/*" required />
