@@ -39,7 +39,8 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
       }
 
       const { url } = await response.json();
