@@ -1,11 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { upload } from '@vercel/blob/client';
-
-const ffmpeg = new FFmpeg();
 
 interface FileUploadProps {
   onTranscriptionComplete: (data: TranscriptionData) => void;
@@ -26,45 +22,6 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
   const [status, setStatus] = useState('');
   const [progress, setProgress] = useState(0);
 
-  const convertToMp3 = async (file: File) => {
-    if (!ffmpeg.loaded) {
-      setStatus('Loading FFmpeg...');
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`/ffmpeg-core.js`, 'text/javascript'),
-      });
-    }
-
-    try {
-      // Write input file
-      await ffmpeg.writeFile('input.mp4', await fetchFile(file));
-      
-      // Add progress handler
-      ffmpeg.on('progress', ({ progress }) => {
-        setProgress(Math.round(progress * 100));
-      });
-
-      // Run FFmpeg command
-      await ffmpeg.exec([
-        '-i', 'input.mp4',
-        '-vn',
-        '-acodec', 'libmp3lame',
-        '-ab', '128k',
-        'output.mp3'
-      ]);
-
-      // Read output file
-      const data = await ffmpeg.readFile('output.mp3');
-      
-      // Clean up
-      await ffmpeg.deleteFile('input.mp4');
-      await ffmpeg.deleteFile('output.mp3');
-      
-      return new Blob([data], { type: 'audio/mp3' });
-    } catch (error) {
-      throw new Error(`FFmpeg conversion failed: ${error.message}`);
-    }
-  };
-
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -79,11 +36,8 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
       setIsLoading(true);
       setProgress(0);
       
-      setStatus('Converting to MP3...');
-      const mp3Blob = await convertToMp3(file);
-
-      setStatus('Uploading to Vercel Blob...');
-      const { url } = await upload(mp3Blob, {
+      setStatus('Uploading file...');
+      const { url } = await upload(file, {
         access: 'public',
         handleUploadUrl: '/api/upload',
       });
@@ -102,9 +56,10 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
       const transcriptionData = await response.json();
       onTranscriptionComplete(transcriptionData);
       setStatus('Transcription complete!');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Upload error:', error);
-      setStatus(`Error: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setStatus(`Error: ${errorMessage}`);
     } finally {
       setIsLoading(false);
       setProgress(0);
@@ -122,12 +77,12 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
             ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
           `}
         >
-          {isLoading ? 'Processing...' : 'Select MP4 File'}
+          {isLoading ? 'Processing...' : 'Select Video File'}
         </label>
         <input
           id="file-upload"
           type="file"
-          accept="video/mp4"
+          accept="video/*,audio/*"
           onChange={handleUpload}
           disabled={isLoading}
           className="hidden"
