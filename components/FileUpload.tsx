@@ -1,16 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { upload } from '@vercel/blob/client';
 
-const ffmpeg = createFFmpeg({ 
-  log: true,
-  corePath: 'https://unpkg.com/@ffmpeg/core@0.12.4/dist/ffmpeg-core.js'
-});
+const ffmpeg = new FFmpeg();
 
 interface FileUploadProps {
-  onTranscriptionComplete: (data: any) => void;
+  onTranscriptionComplete: (data: TranscriptionData) => void;
+}
+
+interface TranscriptionData {
+  words: Array<{
+    text: string;
+    speaker: string;
+    start: number;
+    end: number;
+  }>;
+  speakers: string[];
 }
 
 export default function FileUpload({ onTranscriptionComplete }: FileUploadProps) {
@@ -19,9 +27,11 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
   const [progress, setProgress] = useState(0);
 
   const convertToMp3 = async (file: File) => {
-    if (!ffmpeg.isLoaded()) {
+    if (!ffmpeg.loaded) {
       setStatus('Loading FFmpeg...');
-      await ffmpeg.load();
+      await ffmpeg.load({
+        coreURL: await toBlobURL(`/ffmpeg-core.js`, 'text/javascript'),
+      });
     }
 
     try {

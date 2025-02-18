@@ -1,11 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-
-interface Speaker {
-  id: string;
-  name: string;
-}
+import { useState } from 'react';
 
 interface TranscriptionProps {
   data: {
