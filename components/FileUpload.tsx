@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { put } from '@vercel/blob/client';
+import { BlobUploader } from '@vercel/blob/client';
 
 interface FileUploadProps {
   onTranscriptionComplete: (data: TranscriptionData) => void;
@@ -37,11 +37,13 @@ export default function FileUpload({ onTranscriptionComplete }: FileUploadProps)
       setProgress(0);
       
       setStatus('Uploading file...');
-      const { url } = await put(file.name, file, {
+      const uploader = new BlobUploader({
+        endpoint: '/api/upload',
+        file,
         access: 'public',
-        uploadApiEndpoint: '/api/upload',
-        contentType: file.type,
       });
+
+      const { url } = await uploader.upload();
 
       setStatus('Transcribing with AssemblyAI...');
       const response = await fetch('/api/transcribe', {
