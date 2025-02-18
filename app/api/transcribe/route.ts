@@ -47,29 +47,13 @@ export async function POST(request: Request) {
       // Log the entire transcription response for debugging
       console.log('Transcription response:', transcription);
 
-      if (transcription.status === 'completed') {
-        if (!transcription.words) {
-          throw new Error('Transcription completed but no words found');
-        }
-
-        // Format the response to include speaker labels and text
-        const formattedResponse = {
-          text: transcription.text,
-          words: transcription.words.map((word) => ({
-            text: word.text,
-            start: word.start / 1000,
-            end: word.end / 1000,
-            speaker: word.speaker
-          }))
-        };
-
-        return NextResponse.json(formattedResponse);
+      if (transcription.status === "completed") {
+        return NextResponse.json({ text: transcription.text }, { status: 200 });
+      } else if (transcription.status === "failed") {
+        return NextResponse.json({ error: "Transcription failed" }, { status: 500 });
       }
-      
-      if (transcription.status === 'error') {
-        throw new Error(transcription.error || 'Transcription failed');
-      }
-      
+
+      // Wait before polling again
       await new Promise(resolve => setTimeout(resolve, 3000));
     }
   } catch (error: unknown) {
