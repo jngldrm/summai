@@ -38,14 +38,15 @@ Bitte erstelle:
     setLoadingStatus('Preparing transcript...');
     
     try {
-      // Format transcript with proper line breaks and spacing
+      // Improve transcript formatting
       const transcript = transcriptionData.words
         .reduce((acc, word, index, array) => {
           const currentSpeaker = word.speaker;
           const prevSpeaker = index > 0 ? array[index - 1].speaker : null;
           
           if (currentSpeaker !== prevSpeaker) {
-            return acc + `\n${currentSpeaker}: ${word.text}`;
+            // Add double newline before new speaker except for first one
+            return acc + (acc ? '\n\n' : '') + `${currentSpeaker}: ${word.text}`;
           }
           return acc + ' ' + word.text;
         }, '')
@@ -127,8 +128,20 @@ Bitte erstelle:
 
       {summary && (
         <div className="relative mt-4 p-4 bg-gray-50 rounded-lg">
-          <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-            <ReactMarkdown>
+          <div className="prose prose-sm max-w-none">
+            <ReactMarkdown
+              components={{
+                // Customize heading spacing
+                h1: ({node, ...props}) => <h1 className="mt-4 mb-2" {...props} />,
+                h2: ({node, ...props}) => <h2 className="mt-4 mb-2" {...props} />,
+                // Customize paragraph spacing
+                p: ({node, ...props}) => <p className="my-1" {...props} />,
+                // Customize list spacing
+                ul: ({node, ...props}) => <ul className="my-2" {...props} />,
+                ol: ({node, ...props}) => <ol className="my-2" {...props} />,
+                li: ({node, ...props}) => <li className="my-0.5" {...props} />
+              }}
+            >
               {summary}
             </ReactMarkdown>
           </div>
